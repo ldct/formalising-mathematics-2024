@@ -14,7 +14,25 @@ open Section2sheet3solutions
 
 -- you can maybe do this one now
 theorem tendsTo_neg {a : ℕ → ℝ} {t : ℝ} (ha : TendsTo a t) : TendsTo (fun n ↦ -a n) (-t) := by
-  sorry
+  rw [tendsTo_def]
+  rw [tendsTo_def] at ha
+  intro ε hε
+  specialize ha ε hε
+  cases ha with | intro B hB => {
+    use B
+    intro n
+    intro hbn
+    specialize hB n hbn
+    rw [← abs_neg]
+    ring_nf
+    exact hB
+  }
+
+example (a b : ℝ) : |a+b| ≤ |a| + |b| := by exact abs_add a b
+
+example (a b c : ℝ) : a ≤ b → b < c → a < c := by exact fun a_1 a_2 ↦ gt_of_gt_of_ge a_2 a_1
+
+-- example (a b c d : ℝ) : |a| ≤ b → |c| ≤ d → |a+c| ≤ (b+d) := by exact?
 
 /-
 `tendsTo_add` is the next challenge. In a few weeks' time I'll
@@ -30,32 +48,54 @@ of the results we proved in sheet 4 will be helpful.
 tends to `t + u`. -/
 theorem tendsTo_add {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
     TendsTo (fun n ↦ a n + b n) (t + u) :=
-  by
-  rw [tendsTo_def] at *
-  -- let ε > 0 be arbitrary
+by
+  rw [tendsTo_def]
+  rw [tendsTo_def] at ha
+  rw [tendsTo_def] at hb
   intro ε hε
-  --  There's a bound X such that if n≥X then a(n) is within ε/2 of t
-  specialize ha (ε / 2) (by linarith)
-  cases' ha with X hX
-  --  There's a bound Y such that if n≥Y then b(n) is within ε/2 of u
-  obtain ⟨Y, hY⟩ := hb (ε / 2) (by linarith)
-  --  use max(X,Y),
-  use max X Y
-  -- now say n ≥ max(X,Y)
-  intro n hn
-  rw [max_le_iff] at hn
-  specialize hX n hn.1
-  specialize hY n hn.2
-  --  Then easy.
-  rw [abs_lt] at *
-  constructor <;>-- `<;>` means "do next tactic to all goals produced by this tactic"
-    linarith
+
+  specialize ha (ε/3)
+  have h1 : (0 < ε/3) := by linarith
+  apply ha at h1
+  cases' h1 with B1 hB1
+
+  specialize hb (ε/3)
+  have h2 : (0 < ε/3) := by linarith
+  apply hb at h2
+  cases' h2 with B2 hB2
+
+  use (max B1 B2)
+  intro n n_ge
+
+  specialize hB1 n
+  specialize hB2 n
+
+  have hn1 : (B1 ≤ n) := by {
+    apply le_of_max_le_left at n_ge
+    exact n_ge
+  }
+
+  have hn2 : (B2 ≤ n) := by {
+    apply le_of_max_le_right at n_ge
+    exact n_ge
+  }
+
+  apply hB1 at hn1
+  apply hB2 at hn2
+
+  calc
+    |a n + b n - (t + u)| = |(a n - t) + (b n - u)| := by ring_nf
+    _ ≤ |a n - t| + |(b n - u)| := by exact abs_add (a n - t) (b n - u)
+    _ < ε := by linarith
+
 
 /-- If `a(n)` tends to t and `b(n)` tends to `u` then `a(n) - b(n)`
 tends to `t - u`. -/
 theorem tendsTo_sub {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
     TendsTo (fun n ↦ a n - b n) (t - u) := by
+
   -- this one follows without too much trouble from earlier results.
-  sorry
+  apply tendsTo_neg at hb
+  apply tendsTo_add ha hb
 
 end Section2sheet5

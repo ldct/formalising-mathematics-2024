@@ -89,7 +89,7 @@ theorem tendsTo_const (c : ℝ) : TendsTo (fun n ↦ c) c :=
   intro ε hε
   dsimp only
   use 37
-  intro n hn
+  intro n _
   ring_nf
   norm_num
   exact hε
@@ -104,7 +104,12 @@ theorem tendsTo_add_const {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t
   -- a `forall` hypothesis to specific values.
   -- Look up the explanations of these tactics in Part C
   -- of the course notes.  rw [tendsTo_def] at h ⊢
-  sorry
+  rw [tendsTo_def]
+  intro ε hε
+  rw [tendsTo_def] at h
+  specialize h ε hε
+  cases h with
+  | intro B hB => use B; ring_nf; exact hB
 
 -- you're not quite ready for this one yet though.
 /-- If `a(n)` tends to `t` then `-a(n)` tends to `-t`.  -/

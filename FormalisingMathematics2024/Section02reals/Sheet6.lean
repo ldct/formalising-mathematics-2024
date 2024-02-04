@@ -10,6 +10,23 @@ namespace Section2sheet6
 
 open Section2sheet3solutions Section2sheet5solutions
 
+example (a b : ℝ) : 0 < a → |a*b| = a*|b| := by {
+  rw [abs_mul a b]
+  simp
+  intro h
+  left
+  linarith
+}
+
+example (a b c: ℝ) : 0 < c → a < b → c*a < c*b := by sorry
+
+example (x: ℝ) (hx : 0 < 2 * (x/2)) : 0 < x := by {
+  ring_nf
+}
+
+
+
+
 /-
 
 # Harder questions
@@ -30,7 +47,36 @@ Good luck!
 /-- If `a(n)` tends to `t` then `37 * a(n)` tends to `37 * t`-/
 theorem tendsTo_thirtyseven_mul (a : ℕ → ℝ) (t : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ 37 * a n) (37 * t) := by
-  sorry
+    rw [tendsTo_def] at *
+    intro ε hε
+    specialize h (ε/37)
+    have hp : 0 < ε/37 := by linarith
+    apply h at hp
+    cases' hp with B hB
+
+    use B
+    intro n hBn
+    specialize hB n hBn
+
+    -- multiply hB by 37
+    have mulrw (x y : ℝ) : x < y → 37*x < 37*y := by {
+      intro h
+      linarith
+    }
+    apply mulrw at hB
+
+    -- simplify the RHS of B
+    have h : 37 * (ε / 37) = ε := by linarith
+    rw [h] at hB
+
+    calc
+    |37 * a n - 37 * t| = |37 * (a n - t)| := by ring_nf
+    _ = 37 * |a n - t| := by {
+      rw [abs_mul 37 (a n - t)]
+      simp
+      norm_num
+    }
+    _ < ε := by exact hB
 
 /-- If `a(n)` tends to `t` and `c` is a positive constant then
 `c * a(n)` tends to `c * t`. -/
