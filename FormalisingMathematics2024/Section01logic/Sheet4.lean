@@ -26,8 +26,10 @@ and also the following tactics:
 variable (P Q R : Prop)
 
 example : P ∧ Q → P := by
-  sorry
-  done
+  intro hPQ
+  cases' hPQ with a b
+
+
 
 example : P ∧ Q → Q := by
   sorry
@@ -38,8 +40,10 @@ example : (P → Q → R) → P ∧ Q → R := by
   done
 
 example : P → Q → P ∧ Q := by
-  sorry
-  done
+  intro hP hQ
+  constructor
+  exact hP
+  exact hQ
 
 /-- `∧` is symmetric -/
 example : P ∧ Q → Q ∧ P := by

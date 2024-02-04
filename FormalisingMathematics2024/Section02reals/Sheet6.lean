@@ -82,7 +82,40 @@ theorem tendsTo_thirtyseven_mul (a : ℕ → ℝ) (t : ℝ) (h : TendsTo a t) :
 `c * a(n)` tends to `c * t`. -/
 theorem tendsTo_pos_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c : ℝ} (hc : 0 < c) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+    rw [tendsTo_def] at *
+    intro ε hε
+    specialize h (ε/c)
+    have hp : 0 < ε/c := by exact div_pos hε hc
+    apply h at hp
+    cases' hp with B hB
+
+    use B
+    intro n hBn
+    specialize hB n hBn
+
+    -- multiply hB by c
+    have mulrw (x y : ℝ) : x < y → c*x < c*y := by {
+      intro h
+      exact (mul_lt_mul_left hc).mpr h
+    }
+    apply mulrw at hB
+
+    -- simplify the RHS of B
+    have h : c * (ε / c) = ε := by {
+      field_simp
+      ring
+    }
+    rw [h] at hB
+
+    calc
+    |c * a n - c * t| = |c * (a n - t)| := by ring_nf
+    _ = c * |a n - t| := by {
+      rw [abs_mul c (a n - t)]
+      simp
+      left
+      exact LT.lt.le hc
+    }
+    _ < ε := by exact hB
 
 /-- If `a(n)` tends to `t` and `c` is a negative constant then
 `c * a(n)` tends to `c * t`. -/

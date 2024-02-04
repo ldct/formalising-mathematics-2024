@@ -79,7 +79,7 @@ theorem tendsTo_thirtyseven : TendsTo (fun n ↦ 37) 37 :=
   rw [tendsTo_def]
   intro ε hε
   use 100
-  intro n hn
+  intro n _
   norm_num
   exact hε
 
