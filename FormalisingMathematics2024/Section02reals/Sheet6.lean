@@ -100,7 +100,7 @@ theorem tendsTo_pos_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c :
     }
     apply mulrw at hB
 
-    -- simplify the RHS of B
+    -- simplify the RHS of hB
     have h : c * (ε / c) = ε := by {
       field_simp
       ring
@@ -117,23 +117,81 @@ theorem tendsTo_pos_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c :
     }
     _ < ε := by exact hB
 
+
 /-- If `a(n)` tends to `t` and `c` is a negative constant then
 `c * a(n)` tends to `c * t`. -/
 theorem tendsTo_neg_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c : ℝ} (hc : c < 0) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  rw [tendsTo_def] at *
+  intro ε hε
+  specialize h (ε/(-c))
+  have hp : 0 < ε/(-c) := by {
+    sorry
+  }
+
+  apply h at hp
+
+  cases' hp with B hB
+
+  use B
+  intro n hBn
+  specialize hB n hBn
+
+  -- multiply hB by c
+  have mulrw (x y : ℝ) : x < y → -c*x < -c*y := by {
+    intro h
+    have h_neg_c_pos : 0 < -c := by linarith
+    exact (mul_lt_mul_left h_neg_c_pos).mpr h
+  }
+  apply mulrw at hB
+
+  -- simplify the RHS of B
+  have h : -c * (ε / -c) = ε := by {
+    have c_ne_0 : c ≠ 0 := by exact LT.lt.ne hc
+    field_simp
+    ring_nf
+    field_simp
+    ring
+  }
+  rw [h] at hB
+
+  calc
+  |c * a n - c * t| = |c * (a n - t)| := by ring_nf
+  _ = -c * |a n - t| := by {
+    rw [abs_mul c (a n - t)]
+    have h_abs_c : |c| = -c := by exact abs_of_neg hc
+    simp
+    rw [h_abs_c]
+    ring
+  }
+  _ < ε := by exact hB
 
 /-- If `a(n)` tends to `t` and `c` is a constant then `c * a(n)` tends
 to `c * t`. -/
 theorem tendsTo_const_mul {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  have c_cases : 0 < c ∨ 0 = c ∨ c < 0 := by exact lt_trichotomy 0 c
+  cases' c_cases with c1 c2
+
+  exact tendsTo_pos_const_mul h c1
+
+  cases' c2 with c3 c4
+
+  rw [tendsTo_def] at *
+  intro ε hε
+  use 0
+  intro n hn
+  rw [← c3]
+  simp
+  exact hε
+
+  exact tendsTo_neg_const_mul h c4
 
 /-- If `a(n)` tends to `t` and `c` is a constant then `a(n) * c` tends
 to `t * c`. -/
 theorem tendsTo_mul_const {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ a n * c) (t * c) := by
-sorry
+  simpa [mul_comm] using tendsTo_const_mul c h -- wtf is this
 
 -- another proof of this result
 theorem tendsTo_neg' {a : ℕ → ℝ} {t : ℝ} (ha : TendsTo a t) : TendsTo (fun n ↦ -a n) (-t) := by
@@ -143,10 +201,14 @@ theorem tendsTo_neg' {a : ℕ → ℝ} {t : ℝ} (ha : TendsTo a t) : TendsTo (f
 `a(n)` tends to `t + u`. -/
 theorem tendsTo_of_tendsTo_sub {a b : ℕ → ℝ} {t u : ℝ} (h1 : TendsTo (fun n ↦ a n - b n) t)
     (h2 : TendsTo b u) : TendsTo a (t + u) := by
-  sorry
+    have h3 : TendsTo (fun n ↦ a n - b n + b n) (t + u) := by exact tendsTo_add h1 h2
+    simpa using h3 -- wtf is this
+
 
 /-- If `a(n)` tends to `t` then `a(n)-t` tends to `0`. -/
 theorem tendsTo_sub_lim_iff {a : ℕ → ℝ} {t : ℝ} : TendsTo a t ↔ TendsTo (fun n ↦ a n - t) 0 := by
+  constructor
+  sorry
   sorry
 
 /-- If `a(n)` and `b(n)` both tend to zero, then their product tends

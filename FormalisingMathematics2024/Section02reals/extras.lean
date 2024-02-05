@@ -78,7 +78,9 @@ example : TendsTo (fun n ↦ 1/(Real.sqrt n)) 0 := by
 
     -- take squarer roots on both side of `hn_canonical`
     have hn_canonical_sqrt : Real.sqrt 1 < Real.sqrt (↑n * ε * ε) := by {
+
       rw [Real.sqrt_lt_sqrt_iff]
+
       exact hn_canonical
       norm_num
     }
@@ -169,12 +171,83 @@ example : ∀ t : ℝ, ¬(TendsTo (fun n ↦ if n%2 = 1 then 0 else 1) t) := by 
 
 -- Example 2.2.6: The sequence a_n = (n+1)/n converges to 1
 
+-- Definition 2.3.1: Bounded sequence
+
+def Bounded (a : ℕ → ℝ) : Prop :=
+  ∃ M : ℕ, 0 < M ∧ (∀ n, a n < M)
+
+theorem Bounded_def {a : ℕ → ℝ} :
+    Bounded a ↔ ∃ M : ℕ, 0 < M ∧ (∀ n, a n < M) := by
+  rfl
+
+-- The sequence 1/x is bounded
+
+example : Bounded (fun n ↦ 1/(n+1)) := by
+  rw [Bounded_def] at *
+  use 2
+  constructor
+  norm_num
+  intro n
+  have hn : 0 ≤ n := by exact Nat.zero_le n
+  have h0 : 0 < (n:ℝ)+1 := by linarith
+  simp
+  rw [inv_pos_lt_iff_one_lt_mul h0]
+  have hn : 1 ≤ (n:ℝ)+1 := by linarith
+  simp
+  -- want a tactic to replace a subexpression by an underestimate
+  linarith
 
 
+-- Exercise 2.2.7: Define convergence to infinity
+
+def TendsToInf (a : ℕ → ℝ) : Prop :=
+  ∀ M > 0, ∃ B : ℕ, ∀ n, B ≤ n → M < a n
+
+theorem tendsToInf_def {a : ℕ → ℝ} :
+    TendsToInf a ↔ ∀ M > 0, ∃ B : ℕ, ∀ n, B ≤ n → M < a n := by
+  rfl
 
 
+-- a_n = sqrt n tends to infinity
+
+example : TendsToInf (fun n ↦ Real.sqrt n) := by
+  rw [tendsToInf_def] at *
+  intro M hM
+
+  have hB : ∃ B : ℕ, ⌈M * M⌉₊ < B := by {
+    use ⌈M * M⌉₊ + 1
+    simp
+  }
+
+  cases' hB with B hB
+
+  use B
+
+  intro n hn
+
+  have hB : ⌈M * M⌉₊ < n := by linarith
 
 
+  -- take squarer roots on both side of `hB`
+  have hB_sqrt : Real.sqrt ⌈M * M⌉₊ < Real.sqrt n := by {
+    rw [Real.sqrt_lt_sqrt_iff]
+    exact Nat.cast_lt.mpr hB
+    simp
+  }
+
+  have mpos : 0 ≤ M := by linarith
+
+  calc
+    M = Real.sqrt (M^2) := by {
+      rw [Real.sqrt_sq]
+      exact mpos
+    }
+    _ = Real.sqrt (M*M) := by ring_nf
+    _ <= Real.sqrt ↑⌈M * M⌉₊ := by {
+      simp
+      exact Nat.le_ceil (M * M)
+    }
+    _  < Real.sqrt n := by exact hB_sqrt
 
 
 
