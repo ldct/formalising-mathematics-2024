@@ -79,9 +79,15 @@ Let's prove some theorems.
 
 -/
 
-example : A ⊆ A := by sorry
+example : A ⊆ A := by
+  rfl
 
-example : A ⊆ B → B ⊆ C → A ⊆ C := by sorry
+example : A ⊆ B → B ⊆ C → A ⊆ C := by
+  intro h1 h2
+  intro x hx
+  apply h2
+  apply h1
+  exact hx
 
 example : A ⊆ A ∪ B := by sorry
 

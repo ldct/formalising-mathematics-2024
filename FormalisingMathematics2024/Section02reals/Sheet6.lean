@@ -208,6 +208,7 @@ theorem tendsTo_of_tendsTo_sub {a b : ℕ → ℝ} {t u : ℝ} (h1 : TendsTo (fu
 /-- If `a(n)` tends to `t` then `a(n)-t` tends to `0`. -/
 theorem tendsTo_sub_lim_iff {a : ℕ → ℝ} {t : ℝ} : TendsTo a t ↔ TendsTo (fun n ↦ a n - t) 0 := by
   constructor
+  intro h
   sorry
   sorry
 

@@ -188,7 +188,6 @@ example : Bounded (fun n ↦ 1/(n+1)) := by
   constructor
   norm_num
   intro n
-  have hn : 0 ≤ n := by exact Nat.zero_le n
   have h0 : 0 < (n:ℝ)+1 := by linarith
   simp
   rw [inv_pos_lt_iff_one_lt_mul h0]
@@ -197,6 +196,22 @@ example : Bounded (fun n ↦ 1/(n+1)) := by
   -- want a tactic to replace a subexpression by an underestimate
   linarith
 
+-- Converges => Bounded
+theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bounded f := by
+  cases' hc with t h_conv
+  rewrite [tendsTo_def] at *
+  specialize h_conv 1
+
+  -- want a tactic to simplify h_conv
+
+  have h1 : (0:ℝ) < 1 := by norm_num
+  apply h_conv at h1
+
+  cases' h1 with B hB
+
+  rw [Bounded_def] at *
+
+  sorry
 
 -- Exercise 2.2.7: Define convergence to infinity
 
