@@ -196,6 +196,30 @@ example : Bounded (fun n ↦ 1/(n+1)) := by
   -- want a tactic to replace a subexpression by an underestimate
   linarith
 
+noncomputable def max_prefix : ((ℕ → ℝ)) → ℕ → ℝ
+| _, 0   => 0
+| f, x+1 => max (f x) (max_prefix f x)
+
+theorem mp_def (f : ℕ → ℝ) (b : ℕ) : max_prefix f (b+1) = max (f b) (max_prefix f b) := by rfl
+
+theorem mp_increasing (f : ℕ → ℝ) (a : ℕ) (b : ℕ) (hi : a < b): f a ≤ max_prefix f b := by
+  induction' b with x y
+  exfalso
+  exact Nat.not_succ_le_zero a hi
+  rw [mp_def]
+  have a_cases : a < x ∨ a = x := by exact Nat.lt_succ_iff_lt_or_eq.mp hi
+  cases' a_cases with p q
+  apply y at p
+  exact le_max_of_le_right p
+  rw [q]
+  exact le_max_left (f x) (max_prefix f x)
+
+theorem FinitePrefixMax (f : ℕ → ℝ) (B : ℕ) : ∃ m_elem, ∀ n : ℕ, n < B → f n ≤ m_elem := by
+  use max_prefix f B
+  intro n hnB
+  apply mp_increasing
+  exact hnB
+
 -- Converges => Bounded
 theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bounded f := by
   cases' hc with t h_conv
@@ -210,6 +234,17 @@ theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bound
   cases' h1 with B hB
 
   rw [Bounded_def] at *
+
+  use 1 + Nat.ceil (max_prefix f B)
+
+  constructor
+
+  linarith
+
+  intro n
+
+  have subeq : f n < max_prefix f B := by sorry
+
 
   sorry
 
