@@ -220,13 +220,21 @@ theorem FinitePrefixMax (f : ℕ → ℝ) (B : ℕ) : ∃ m_elem, ∀ n : ℕ, n
   apply mp_increasing
   exact hnB
 
+example (a b : ℝ) (h : |a - b| < 1) : |a| < |b| + 1 := by {
+  sorry
+}
+
+example (a b c: ℝ) (h1 : |a - b| < 1) (h2 : |b - c| < 1) : |a - c| < 2 := by {
+  sorry
+}
+
 -- Converges => Bounded
 theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bounded f := by
   cases' hc with t h_conv
   rewrite [tendsTo_def] at *
   specialize h_conv 1
 
-  norm_num at h_conv
+  norm_num at h_conv -- eliminate the `0 < 1 →`
   cases' h_conv with B hB
 
   rw [Bounded_def] at *
@@ -235,14 +243,13 @@ theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bound
 
   cases' h with m_elem h_m_elem
 
-  use (max 1 (max (1 + Nat.ceil m_elem) (Nat.ceil (|t|+2))))
+  use (max (1 + Nat.ceil m_elem) (Nat.ceil (|t|+2)))
 
   constructor
 
   simp
 
   intro n
-
 
   have cases_nb : B ≤ n ∨ n < B := by exact le_or_lt B n
 
@@ -268,10 +275,9 @@ theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bound
 
   calc
     f n ≤ m_elem := h5
-    _ < ↑(max 1 (max (1 + ⌈m_elem⌉₊) ⌈|t| + 2⌉₊)) := by {
+    _ < ↑(max (1 + ⌈m_elem⌉₊) ⌈|t| + 2⌉₊) := by {
       simp
       left
-
       calc
         m_elem ≤ ↑⌈m_elem⌉₊ := Nat.le_ceil m_elem
         _ < 1 +  ↑⌈m_elem⌉₊ := by apply lt_one_add
