@@ -226,27 +226,64 @@ theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bound
   rewrite [tendsTo_def] at *
   specialize h_conv 1
 
-  -- want a tactic to simplify h_conv
-
-  have h1 : (0:ℝ) < 1 := by norm_num
-  apply h_conv at h1
-
-  cases' h1 with B hB
+  norm_num at h_conv
+  cases' h_conv with B hB
 
   rw [Bounded_def] at *
 
-  use 1 + Nat.ceil (max_prefix f B)
+  have h : ∃ m_elem, ∀ n : ℕ, n < B → f n ≤ m_elem := by apply FinitePrefixMax
+
+  cases' h with m_elem h_m_elem
+
+  use (max 1 (max (1 + Nat.ceil m_elem) (Nat.ceil (|t|+2))))
 
   constructor
 
-  linarith
+  simp
 
   intro n
 
-  have subeq : f n < max_prefix f B := by sorry
+
+  have cases_nb : B ≤ n ∨ n < B := by exact le_or_lt B n
+
+  cases' cases_nb with h1 h2
+
+  have h6: |f n| - |t| ≤ |f n - t| := by exact abs_sub_abs_le_abs_sub (f n) t
+
+  have h7: |f n| - |t| < 1 := by exact gt_of_gt_of_ge (hB n h1) h6
+
+  have h4 : |f n| < |t| + 1 := by exact sub_lt_iff_lt_add'.mp h7
+
+  simp
+  right
+
+  calc
+    f n = f n := rfl
+    _ ≤ |f n| := le_abs_self (f n)
+    _ < |t| + 1 := h4
+    _ ≤ |t| + 2 := by linarith
+    _ ≤ ↑⌈|t| + 2⌉₊ := Nat.le_ceil (|t| + 2)
+
+  have h5 : f n ≤ m_elem := by exact h_m_elem n h2
+
+  calc
+    f n ≤ m_elem := h5
+    _ < ↑(max 1 (max (1 + ⌈m_elem⌉₊) ⌈|t| + 2⌉₊)) := by {
+      simp
+      left
+
+      calc
+        m_elem ≤ ↑⌈m_elem⌉₊ := Nat.le_ceil m_elem
+        _ < 1 +  ↑⌈m_elem⌉₊ := by apply lt_one_add
+    }
 
 
-  sorry
+
+
+
+
+
+
 
 -- Exercise 2.2.7: Define convergence to infinity
 
