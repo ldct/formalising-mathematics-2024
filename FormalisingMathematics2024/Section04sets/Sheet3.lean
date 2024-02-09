@@ -30,18 +30,49 @@ variable (X : Type) -- Everything will be a subset of `X`
   (x y z : X) -- x,y,z are elements of `X` or, more precisely, terms of type `X`
 
 -- x,y,z are elements of `X` or, more precisely, terms of type `X`
-example : x ∉ A → x ∈ A → False := by sorry
+example : x ∉ A → x ∈ A → False := by
+  intro h1 h2
+  apply h1
+  exact h2
 
-example : x ∈ A → x ∉ A → False := by sorry
+example : x ∈ A → x ∉ A → False := by
+  intro h1 h2
+  apply h2
+  exact h1
 
-example : A ⊆ B → x ∉ B → x ∉ A := by sorry
+example : A ⊆ B → x ∉ B → x ∉ A := by
+  intro h1 h2 h3
+  apply h2
+  apply h1
+  exact h3
 
 -- Lean couldn't work out what I meant when I wrote `x ∈ ∅` so I had
 -- to give it a hint by telling it the type of `∅`.
-example : x ∉ (∅ : Set X) := by sorry
+example : x ∉ (∅ : Set X) := by
+  intro h
+  cases h
 
-example : x ∈ Aᶜ → x ∉ A := by sorry
+example : x ∈ Aᶜ → x ∉ A := by
+  intro h1 h2
+  apply h1
+  exact h2
 
-example : (∀ x, x ∈ A) ↔ ¬∃ x, x ∈ Aᶜ := by sorry
+theorem rw_inner (p : X): (p ∈ A ↔ p ∉ Aᶜ) := by sorry
 
-example : (∃ x, x ∈ A) ↔ ¬∀ x, x ∈ Aᶜ := by sorry
+example : (∀ x, x ∈ A) ↔ ¬∃ x, x ∈ Aᶜ := by
+  constructor
+  intro h1
+  intro h2
+  cases' h2 with x hx
+  specialize h1 x
+  apply hx
+  exact h1
+
+  intro h1 x
+  by_contra h2
+  apply h1
+  use x
+  exact h2
+
+
+example : (∃ x, x ∈ A) ↔ ¬∀ x, x ∈ Aᶜ := by aesop

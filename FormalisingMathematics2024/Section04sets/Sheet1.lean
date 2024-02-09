@@ -58,9 +58,6 @@ theorem subset_def : A ⊆ B ↔ ∀ x, x ∈ A → x ∈ B := by
   -- ↔ is reflexive so `rfl` works because LHS is defined to be equal to RHS
   rfl
 
--- Say `x` is an arbitrary element of `X`.
-variable (x : X)
-
 theorem mem_union_iff : x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B := by
   rfl
 
@@ -89,14 +86,48 @@ example : A ⊆ B → B ⊆ C → A ⊆ C := by
   apply h1
   exact hx
 
-example : A ⊆ A ∪ B := by sorry
+example : A ⊆ A ∪ B := by
+  intro x hx
+  left
+  exact hx
 
-example : A ∩ B ⊆ A := by sorry
+example : A ∩ B ⊆ A := by
+  intro x hx
+  cases' hx with h1 h2
+  exact h1
 
-example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := by sorry
+example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := by
+  intros h1 h2
+  intro x hx
+  constructor
+  apply h1
+  exact hx
+  apply h2
+  exact hx
 
-example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A := by sorry
+example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A := by
+  intro h1 h2 x hx
+  cases' hx with h3 h4
+  apply h1
+  exact h3
+  apply h2
+  exact h4
 
-example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D := by sorry
+example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D := by
+  intro h1 h2 x hx
+  cases' hx with h3 h4
+  left
+  apply h1
+  exact h3
+  right
+  apply h2
+  exact h4
 
-example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D := by sorry
+example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D := by
+  intro h1 h2 x hx
+  cases' hx with h3 h4
+  constructor
+  apply h1
+  exact h3
+  apply h2
+  exact h4

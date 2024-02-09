@@ -59,10 +59,13 @@ example : (∀ x, x ∈ A) ↔ ¬∃ x, x ∈ Aᶜ := by
   constructor
   · rintro h1 ⟨x, hx⟩
     exact hx (h1 x)
+
+
   · intro h x
     by_contra h2
     apply h
-    exact ⟨x, h2⟩
+    use x
+    exact h2
 
 example : (∃ x, x ∈ A) ↔ ¬∀ x, x ∈ Aᶜ := by aesop -- OK so I got lazy
 -- The `aesop` tactic is a general purpose tactic for goals like this.
