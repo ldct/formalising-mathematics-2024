@@ -220,9 +220,9 @@ theorem FinitePrefixMax (f : ℕ → ℝ) (B : ℕ) : ∃ m_elem, ∀ n : ℕ, n
   apply mp_increasing
   exact hnB
 
-example (a b : ℝ) (h : |a - b| < 1) : |a| < |b| + 1 := by {
-  sorry
-}
+theorem abs_gt (a:ℝ) (b:ℝ) : |a| > b ↔ -a < -b ∧ b > a := by sorry
+
+example (a b : ℝ) (h : |a - b| < 1) : |a| < |b| + 1 := by sorry
 
 example (a b c: ℝ) (h1 : |a - b| < 1) (h2 : |b - c| < 1) : |a - c| < 2 := by {
   sorry
@@ -283,11 +283,57 @@ theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bound
         _ < 1 +  ↑⌈m_elem⌉₊ := by apply lt_one_add
     }
 
+example (x : ℝ) (y : ℝ) : |x + y| ≤ |x| + |y| := by exact abs_add x y
 
+-- 2.2.3 (iii)
+theorem tendsTo_mul_abott {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
+    TendsTo (fun n ↦ a n * b n) (t * u) := by
+  rw [tendsTo_def]
+  intro ε hε
 
+  have h_exists_n1 : ∃ n1, ∀ n : ℕ, n1 ≤ n → |b n - u| < ε/(2*t)  := by sorry
 
+  have b_converges : ∃ z, TendsTo b z := by exact Exists.intro u hb
+  have h_b_bounded : Bounded b := ConvergesThenBounded b b_converges -- callout: applying a lemma
 
+  rw [Bounded_def] at *
 
+  cases' h_b_bounded with m hm
+  cases' hm with m_pos m_bounds
+
+  have h_exists_n2 : ∃ n2, ∀ n : ℕ, n2 ≤ n → |a n - t| < ε/(2*m) := by sorry
+
+  cases' h_exists_n1 with n1 hn1
+
+  cases' h_exists_n2 with n2 hn2
+
+  use max n1 n2
+
+  intro n hn
+
+  calc
+    |a n * b n - (t * u)| = |a n * b n - t * b n + (t * b n - t * u)| := by ring_nf
+    _ ≤ |a n * b n - t * b n| + |t * b n - t * u| := abs_add (a n * b n - t * b n) (t * b n - t * u)
+    _ = |b n * (a n - t)| + |t * (b n - u)| := by ring_nf
+    _ = |b n| * |a n - t| + |t * (b n - u)| := by {
+      congr
+      exact abs_mul (b n) (a n - t)
+    }
+    _ = |b n| * |a n - t| + |t| * |b n - u| := by {
+      congr
+      exact abs_mul t (b n - u)
+    }
+    _ ≤ m * |a n - t| + |t| * |b n - u| := by {
+      simp
+      specialize m_bounds n
+      have m_bounds' : b n ≤ m := LT.lt.le m_bounds
+      have hpos : 0 ≤ |a n - t| := abs_nonneg (a n - t)
+      sorry
+    }
+    _ < ε := by {
+
+      sorry
+    }
 
 
 

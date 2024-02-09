@@ -49,9 +49,7 @@ tends to `t + u`. -/
 theorem tendsTo_add {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
     TendsTo (fun n ↦ a n + b n) (t + u) :=
 by
-  rw [tendsTo_def]
-  rw [tendsTo_def] at ha
-  rw [tendsTo_def] at hb
+  rw [tendsTo_def] at *
   intro ε hε
 
   specialize ha (ε/3)
