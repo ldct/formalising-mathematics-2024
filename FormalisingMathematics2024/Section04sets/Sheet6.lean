@@ -38,12 +38,28 @@ for group theory. In Lean we use the notation `f ⁻¹' T` for this pullback.
 
 variable (X Y : Type) (f : X → Y) (S : Set X) (T : Set Y)
 
-example : S ⊆ f ⁻¹' (f '' S) := by sorry
+example : S ⊆ f ⁻¹' (f '' S) := by
+  intro x hx
+  simp
+  use x
 
-example : f '' (f ⁻¹' T) ⊆ T := by sorry
+example : f '' (f ⁻¹' T) ⊆ T := by
+  intro y hy
+  simp at hy
+  cases' hy with x hx
+  cases' hx with h1 h2
+  rw [← h2]
+  exact h1
 
 -- `library_search` will do this but see if you can do it yourself.
-example : f '' S ⊆ T ↔ S ⊆ f ⁻¹' T := by sorry
+example : f '' S ⊆ T ↔ S ⊆ f ⁻¹' T := by
+  constructor
+  intro h
+  simp at h
+  exact h
+  intro h
+  simp
+  exact h
 
 -- Pushforward and pullback along the identity map don't change anything
 -- pullback is not so hard

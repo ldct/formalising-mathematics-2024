@@ -51,18 +51,20 @@ example (g : G) : g⁻¹ * g = 1 :=
 -- with the name of the axiom it found. Note also that you can instead *guess*
 -- the names of the axioms. For example what do you think the proof of `1 * a = a` is called?
 example (a b c : G) : a * b * c = a * (b * c) := by
-  sorry
+  -- why can't `simp` do this
+  exact mul_assoc a b c
+
 
 -- can be found with `library_search` if you didn't know the answer already
 example (a : G) : a * 1 = a := by
-  sorry
+  exact mul_one a
 
 -- Can you guess the last two?
 example (a : G) : 1 * a = a := by
-  sorry
+  exact one_mul a
 
 example (a : G) : a * a⁻¹ = 1 := by
-  sorry
+  exact mul_inv_self a
 
 -- As well as the axioms, Lean has many other standard facts which are true
 -- in all groups. See if you can prove these from the axioms, or find them
@@ -71,26 +73,31 @@ example (a : G) : a * a⁻¹ = 1 := by
 variable (a b c : G)
 
 example : a⁻¹ * (a * b) = b := by
-  sorry
+  exact?
 
 example : a * (a⁻¹ * b) = b := by
-  sorry
+  exact?
 
 example {a b c : G} (h1 : b * a = 1) (h2 : a * c = 1) : b = c := by
   -- hint for this one if you're doing it from first principles: `b * (a * c) = (b * a) * c`
-  sorry
+
+  have h3 : b * (a * c) = (b * a) * c := (mul_assoc b a c).symm
+  rw [h1] at h3
+  rw [h2] at h3
+  simp at h3
+  exact h3
 
 example : a * b = 1 ↔ a⁻¹ = b := by
-  sorry
+  exact?
 
 example : (1 : G)⁻¹ = 1 := by
-  sorry
+  exact?
 
 example : a⁻¹⁻¹ = a := by
-  sorry
+  exact?
 
 example : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
-  sorry
+  exact?
 
 /-
 
@@ -110,4 +117,4 @@ example : (b⁻¹ * a⁻¹)⁻¹ * 1⁻¹⁻¹ * b⁻¹ * (a⁻¹ * a⁻¹⁻¹�
 
 -- Try this trickier problem: if g^2=1 for all g in G, then G is abelian
 example (h : ∀ g : G, g * g = 1) : ∀ g h : G, g * h = h * g := by
-  sorry
+  sorry -- todo(xuanji)
