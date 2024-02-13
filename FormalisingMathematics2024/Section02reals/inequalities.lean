@@ -125,18 +125,27 @@ theorem amgm4 (a b c d : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) (hpos3 : 0 ≤
 
 theorem cancels (a b c : ℝ) (hc : 0 ≤ c) : a ≤ b ↔ a * c ≤ b * c := by sorry
 
--- theorem amgm3; actually kind of hard
+theorem takes4 (a b : ℝ) : a ≤ b ↔ a ^ ((4:ℝ)/3) ≤ b ^ ((4:ℝ)/3) := by sorry
+
+
+noncomputable def _14 : ℝ := (1:ℝ)/4
+noncomputable def _34 : ℝ := (3:ℝ)/4
+
+theorem _14_def : _14 = (1:ℝ)/4 := by rfl
+theorem _34_def : _34 = (3:ℝ)/4 := by rfl
+
+-- theorem amgm3 from https://math.stackexchange.com/questions/2576966/elementary-proof-for-sqrt3xyz-leq-dfracxyz3
 theorem amgm3 (a b c : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) (hpos3 : 0 ≤ c) : (a * b * c)^((1:ℝ)/3) ≤ (a + b + c) / 3 := by
   have exists_A : ∃ A, (a + b + c) / 3 = A := by use (a+b+c)/3
   cases' exists_A with A hA
 
   have hpos4 : 0 ≤ A := by linarith
-  have h : (a * b * c * A)^((1:ℝ)/4) ≤ (a + b + c + A) / 4 := by {
+  have h : (a * b * c * A)^_14 ≤ (a + b + c + A) / 4 := by {
     apply amgm4
     repeat linarith
   }
 
-  have rw1 : (a * b * c * A) ^ ((1:ℝ) / 4) = (a * b * c)^((1:ℝ) / 4) * A ^ ((1:ℝ) / 4) := by {
+  have rw1 : (a * b * c * A) ^ _14 = (a * b * c)^_14 * A ^ _14 := by {
     rw [Real.mul_rpow]
     have h : 0 ≤ a*b := by exact mul_nonneg hpos1 hpos2
     exact mul_nonneg h hpos3
@@ -145,11 +154,36 @@ theorem amgm3 (a b c : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) (hpos3 : 0 ≤ c
 
   have rw2 : (a + b + c + A) / 4 = A := by linarith
 
-  have rw3 : A = A ^ ((3:ℝ) / 4) *  A ^ ((1:ℝ) / 4) := by sorry
+  have rw3 : A = (A ^ _34) *  (A ^ _14) := by sorry
 
   rw [rw1] at h
+
   rw [rw2] at h
-  rw [rw3] at h
 
+  have h' : (a * b * c) ^ _14 * A ^ _14 ≤  (A ^ _34) *  (A ^ _14) := by sorry
 
-  sorry
+  rw [← cancels] at h'
+
+  rw [takes4] at h'
+
+  rw [← Real.rpow_mul] at h'
+  rw [← Real.rpow_mul] at h'
+
+  have hs1 : _14 * ((4:ℝ)/3) = (1:ℝ)/3 := by {
+    field_simp
+    rw [_14_def]
+    simp
+  }
+
+  have hs2 : _34 * ((4:ℝ)/3) = 1 := by {
+    field_simp
+    rw [_34_def]
+    simp
+  }
+
+  rw [hs1, hs2] at h'
+
+  simp at h'
+  simp
+  rw [hA]
+  exact h'
