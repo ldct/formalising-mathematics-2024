@@ -82,20 +82,39 @@ Using these axioms, see if you can develop the basic theory of lattices.
 variable (L : Type) [Lattice L] (a b c : L)
 
 example : a ⊔ b = b ⊔ a := by
-  -- you might want to start with `apply le_antisymm` (every lattice is a partial order so this is OK)
-  -- You'll then have two goals so use `\.` and indent two spaces.
-  sorry
+  apply le_antisymm
+  apply sup_le
+  exact le_sup_right
+  exact le_sup_left
+  apply sup_le
+  exact le_sup_right
+  exact le_sup_left
 
+-- provable by `exact`
 example : a ⊔ b ⊔ c = a ⊔ (b ⊔ c) := by
-  sorry
+  apply le_antisymm
+  have h1 : b ≤ b ⊔ c := le_sup_left
+  have h2 : c ≤ b ⊔ c := le_sup_right
+  apply sup_le
+  apply sup_le
+  exact le_sup_left
+  exact le_sup_of_le_right h1
+  exact le_sup_of_le_right h2
+
+  have h1 : a ≤ a ⊔ b := le_sup_left
+  have h2 : b ≤ a ⊔ b := le_sup_right
+  apply sup_le
+  exact le_sup_of_le_left h1
+  exact sup_le_sup_right h2 c
 
 -- could golf this entire proof into one (long) line
 -- `a ⊓ _` preserves `≤`.
 -- Note: this is called `inf_le_inf_left a h` in mathlib; see if you can prove it
 -- directly without using this.
 example (h : b ≤ c) : a ⊓ b ≤ a ⊓ c := by
-  sorry
-
+  apply le_inf
+  exact inf_le_left
+  exact inf_le_of_right_le h
 /-
 
 We all know that multiplication "distributes" over addition, i.e. `p*(q+r)=p*q+p*r`,
