@@ -88,7 +88,7 @@ example {a b c : G} (h1 : b * a = 1) (h2 : a * c = 1) : b = c := by
   exact h3
 
 example : a * b = 1 ↔ a⁻¹ = b := by
-  exact?
+  exact mul_eq_one_iff_inv_eq
 
 example : (1 : G)⁻¹ = 1 := by
   exact?
@@ -116,5 +116,48 @@ educated guessing).
 example : (b⁻¹ * a⁻¹)⁻¹ * 1⁻¹⁻¹ * b⁻¹ * (a⁻¹ * a⁻¹⁻¹⁻¹) * a = 1 := by group
 
 -- Try this trickier problem: if g^2=1 for all g in G, then G is abelian
-example (h : ∀ g : G, g * g = 1) : ∀ g h : G, g * h = h * g := by
-  sorry -- todo(xuanji)
+example (hs : ∀ g : G, g * g = 1) : ∀ g h : G, g * h = h * g := by
+  intro h g
+  have h1 : h = h⁻¹ := by {
+    rw [eq_comm]
+    specialize hs h
+    calc
+      h⁻¹ = h⁻¹ * (h * h) := by {
+        rw [hs]
+        group
+      }
+      _ = h := by {
+        group
+      }
+  }
+  have h2 : g = g⁻¹ := by {
+    rw [eq_comm]
+    specialize hs g
+    calc
+      g⁻¹ = g⁻¹ * (g * g) := by {
+        rw [hs]
+        group
+      }
+      _ = g := by {
+        group
+      }
+  }
+  calc
+    h*g = h*g := by rfl
+    _ = g⁻¹ * h⁻¹ := by {
+      rw [eq_comm]
+      specialize hs (h * g)
+      calc
+        g⁻¹ * h⁻¹= g⁻¹ * h⁻¹ * ((h * g) * (h * g)) := by {
+          rw [hs]
+          group
+        }
+        _ = h * g := by group
+    }
+    _ = g * h := by {
+      congr
+      rw [eq_comm]
+      exact h2
+      rw [eq_comm]
+      exact h1
+    }

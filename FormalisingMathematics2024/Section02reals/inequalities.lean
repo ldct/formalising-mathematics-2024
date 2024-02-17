@@ -123,7 +123,20 @@ theorem amgm4 (a b c d : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) (hpos3 : 0 ≤
 
   exact mul_nonneg (mul_nonneg hpos1 hpos2) (mul_nonneg hpos3 hpos4)
 
-theorem cancels (a b c : ℝ) (hc : 0 ≤ c) : a ≤ b ↔ a * c ≤ b * c := by sorry
+theorem cancels (a b c : ℝ) (hc : 0 < c) : a ≤ b ↔ a * c ≤ b * c := by {
+  have hc' : 0 ≤ c := by exact LT.lt.le hc
+  constructor
+  intro h
+  exact mul_le_mul_of_nonneg_right h hc'
+  intro h
+  have h' : a * c * c⁻¹ ≤ b * c * c⁻¹ := by {
+    apply mul_le_mul_of_nonneg_right
+    exact h
+    exact inv_nonneg.mpr hc'
+  }
+  field_simp at h'
+  exact h'
+}
 
 theorem takes4 (a b : ℝ) : a ≤ b ↔ a ^ ((4:ℝ)/3) ≤ b ^ ((4:ℝ)/3) := by sorry
 
