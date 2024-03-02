@@ -138,8 +138,23 @@ theorem cancels (a b c : ℝ) (hc : 0 < c) : a ≤ b ↔ a * c ≤ b * c := by {
   exact h'
 }
 
-theorem takes4 (a b : ℝ) : a ≤ b ↔ a ^ ((4:ℝ)/3) ≤ b ^ ((4:ℝ)/3) := by sorry
+theorem takes4weak (a b : ℝ) (ha : 0 ≤ a) : a ≤ b → a ^ ((4:ℝ)/3) ≤ b ^ ((4:ℝ)/3) := by
+  intro h1
+  apply Real.rpow_le_rpow
+  exact ha
+  exact h1
+  norm_num
 
+theorem takes14weak (a b : ℝ) (ha : 0 ≤ a) : a ≤ b → a ^ ((1:ℝ)/4) ≤ b ^ ((1:ℝ)/4) := by
+  intro h1
+  apply Real.rpow_le_rpow
+  exact ha
+  exact h1
+  norm_num
+
+-- currently unused
+theorem takes4 (a b : ℝ) (ha : 0 ≤ a) : a ≤ b ↔ a ^ ((4:ℝ)/3) ≤ b ^ ((4:ℝ)/3) := by
+  sorry
 
 noncomputable def _14 : ℝ := (1:ℝ)/4
 noncomputable def _34 : ℝ := (3:ℝ)/4
@@ -148,36 +163,77 @@ theorem _14_def : _14 = (1:ℝ)/4 := by rfl
 theorem _34_def : _34 = (3:ℝ)/4 := by rfl
 
 -- theorem amgm3 from https://math.stackexchange.com/questions/2576966/elementary-proof-for-sqrt3xyz-leq-dfracxyz3
-theorem amgm3 (a b c : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) (hpos3 : 0 ≤ c) : (a * b * c)^((1:ℝ)/3) ≤ (a + b + c) / 3 := by
-  have exists_A : ∃ A, (a + b + c) / 3 = A := by use (a+b+c)/3
+theorem amgm3 (x y z : ℝ) (hpos1 : 0 ≤ x) (hpos2 : 0 ≤ y) (hpos3 : 0 ≤ z) : (x * y * z)^((1:ℝ)/3) ≤ (x + y + z) / 3 := by
+  have exists_A : ∃ A, (x + y + z) / 3 = A := by use (x + y + z)/3
   cases' exists_A with A hA
 
   have hpos4 : 0 ≤ A := by linarith
-  have h : (a * b * c * A)^_14 ≤ (a + b + c + A) / 4 := by {
+
+  -- 1st inequality
+  have h : (x * y * z * A)^_14 ≤ (x + y + z + A) / 4 := by {
     apply amgm4
     repeat linarith
   }
 
-  have rw1 : (a * b * c * A) ^ _14 = (a * b * c)^_14 * A ^ _14 := by {
+  have rw1 : (x * y * z * A) ^ _14 = (x * y * z)^_14 * A ^ _14 := by {
     rw [Real.mul_rpow]
-    have h : 0 ≤ a*b := by exact mul_nonneg hpos1 hpos2
+    have h : 0 ≤ x*y := by exact mul_nonneg hpos1 hpos2
     exact mul_nonneg h hpos3
     linarith
   }
 
-  have rw2 : (a + b + c + A) / 4 = A := by linarith
+  have rw2 : (x + y + z + A) / 4 = A := by linarith
 
-  have rw3 : A = (A ^ _34) *  (A ^ _14) := by sorry
+  have rw3 : A = (A ^ _34) *  (A ^ _14) := by {
+    rw [_34_def]
+    rw [_14_def]
+    rw [← Real.rpow_add_of_nonneg]
+    norm_num
+    exact hpos4
+    norm_num
+    norm_num
+  }
 
   rw [rw1] at h
 
   rw [rw2] at h
 
-  have h' : (a * b * c) ^ _14 * A ^ _14 ≤  (A ^ _34) *  (A ^ _14) := by sorry
+  -- 3rd inequality
+  have h' : (x * y * z) ^ _14 * A ^ _14 ≤ (A ^ _34) *  (A ^ _14) := by {
+    calc
+      (x * y * z) ^ _14 * A ^ _14 ≤ A := by exact h
+      _ = (A ^ _34) *  (A ^ _14) := by exact rw3
+  }
+
+  have h_cases : 0 ≤ A ^ _14 := by positivity
+  have h_cases' : 0 = A ^ _14 ∨ 0 < A ^ _14 := by exact LE.le.eq_or_lt h_cases
+  cases' h_cases' with h1 h2
+
+  -- case where A=0
+  rw [_14_def] at h1
+  have h1' : 0 = A := by {
+    calc
+      (0:ℝ) = 0 ^ (4:ℝ) := by norm_num
+      _ = (A ^ _14) ^ (4:ℝ) := by {
+        rw [h1]
+        rw [_14_def]
+      }
+      _ = A := by {
+        rw [_14_def]
+        rw [← Real.rpow_mul]
+        norm_num
+        exact hpos4
+      }
+  }
+  rw [← hA] at h1'
+  have hx : x = 0 := by linarith
+  have hy : y = 0 := by linarith
+  have hz : z = 0 := by linarith
+  simp [hx, hy, hz]
 
   rw [← cancels] at h'
 
-  rw [takes4] at h'
+  apply takes4weak at h'
 
   rw [← Real.rpow_mul] at h'
   rw [← Real.rpow_mul] at h'
@@ -200,3 +256,7 @@ theorem amgm3 (a b c : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) (hpos3 : 0 ≤ c
   simp
   rw [hA]
   exact h'
+
+  exact hpos4
+
+  repeat positivity

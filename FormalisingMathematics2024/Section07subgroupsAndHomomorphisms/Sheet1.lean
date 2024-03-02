@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author : Kevin Buzzard
 -/
 import Mathlib.Tactic
+import Mathlib.GroupTheory.SpecificGroups.Dihedral
+
+-- todo: hmm
+-- #eval (Nat.card (DihedralGroup 3))
 
 namespace Section7sheet1
 
@@ -116,17 +120,50 @@ variable {G H} {x : G}
 
 variable {y z : G}
 
+theorem mem_def (X : Type) (P : X → Prop) (a : X) :
+    a ∈ {x : X | P x} ↔ P a := by
+  rfl
+
 theorem conjugate.one_mem : (1 : G) ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹} := by
-  sorry
+  use 1
+  constructor
+  exact H.one_mem
+  group
 
 theorem conjugate.inv_mem (hy : y ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹}) :
     y⁻¹ ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹} := by
-  sorry
+  rw [mem_def]
+  rw [mem_def] at hy
+  cases' hy with h hh
+  cases' hh with h1 h2
+  use h⁻¹
+  constructor
+  exact H.inv_mem h1
+  have h3 : y⁻¹ = (x * h * x⁻¹)⁻¹ := by exact congrArg Inv.inv h2
+  rw [h3]
+  group
 
 theorem conjugate.mul_mem (hy : y ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹})
     (hz : z ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹}) :
     y * z ∈ {a : G | ∃ h, h ∈ H ∧ a = x * h * x⁻¹} := by
-  sorry
+  rw [mem_def] at *
+  cases' hy with a ha
+  cases' ha with ha1 ha2
+  have ha3 : a = x⁻¹ * y * x := by {
+    rw [ha2]
+    group
+  }
+  cases' hz with b hb
+  cases' hb with hb1 hb2
+  have hb3 : b = x⁻¹ * z * x := by {
+    rw [hb2]
+    group
+  }
+  use a*b
+  constructor
+  exact Subgroup.mul_mem H ha1 hb1
+  rw [ha3, hb3]
+  group
 
 -- Now here's the way to put everything together:
 def conjugate (H : Subgroup G) (x : G) : Subgroup G
@@ -166,15 +203,66 @@ theorem mem_conjugate_iff : a ∈ conjugate H x ↔ ∃ h, h ∈ H ∧ a = x * h
   rfl
 
 theorem conjugate_mono (H K : Subgroup G) (h : H ≤ K) : conjugate H x ≤ conjugate K x := by
-  sorry
+  intro g hg
+  rw [mem_conjugate_iff] at *
+  cases' hg with h' hg
+  cases' hg with h1 h2
+  use h'
+  constructor
+  apply h
+  exact h1
+  exact h2
 
 theorem conjugate_bot : conjugate ⊥ x = ⊥ := by
-  sorry
+  ext y
+  rw [mem_conjugate_iff] at *
+  rw [Subgroup.mem_bot] at *
+  constructor
+  intro hp
+  cases' hp with h hh
+  cases' hh with h1 h2
+  rw [h1] at h2
+  group at h2
+  exact h2
+  intro hp
+  use 1
+  constructor
+  rfl
+  group
+  exact hp
 
 theorem conjugate_top : conjugate ⊤ x = ⊤ := by
-  sorry
+  ext y
+  rw [mem_conjugate_iff] at *
+  constructor
+  intro hp
+  cases' hp with h hh
+  cases' hh with h1 h2
+  triv
+  intro _
+  use x⁻¹*y*x
+  constructor
+  triv
+  group
 
 theorem conjugate_eq_of_abelian (habelian : ∀ a b : G, a * b = b * a) : conjugate H x = H := by
-  sorry
+  ext y
+  rw [mem_conjugate_iff] at *
+  constructor
+  intro hp
+  cases' hp with h hh
+  cases' hh with h1 h2
+  specialize habelian x h
+  rw [habelian] at h2
+  group at h2
+  rw [h2]
+  exact h1
+  intro hy
+  use y
+  constructor
+  exact hy
+  specialize habelian x y
+  rw [habelian]
+  group
 
 end Section7sheet1

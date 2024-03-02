@@ -40,6 +40,7 @@ namespace Section4sheet1
 -- set up variables
 variable (X : Type) -- Everything will be a subset of `X`
   (A B C D : Set X) -- A,B,C,D are subsets of `X`
+  (x : X)
 
 /-
 # subset (`⊆`), union (`∪`) and intersection (`∩`)

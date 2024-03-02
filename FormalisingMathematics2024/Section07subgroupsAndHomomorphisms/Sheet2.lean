@@ -47,7 +47,6 @@ example (a : G) : φ a⁻¹ = (φ a)⁻¹ :=
 -- The identity group homomorphism from `G` to `G` is called `monoid_hom.id G`
 example : MonoidHom.id G a = a := by rfl
 
--- true by definition
 -- Let K be a third group.
 variable (K : Type) [Group K]
 
@@ -66,14 +65,18 @@ example : G →* K :=
 -- The next three lemmas are pretty standard, but they are also in fact
 -- the axioms that show that groups form a category.
 theorem comp_id : φ.comp (MonoidHom.id G) = φ := by
-  sorry
+  ext x
+  rfl
+  -- todo(xuanji): hmmm
 
 theorem id_comp : (MonoidHom.id H).comp φ = φ := by
-  sorry
+  ext x
+  rfl
 
 theorem comp_assoc {L : Type} [Group L] (ρ : K →* L) :
     (ρ.comp ψ).comp φ = ρ.comp (ψ.comp φ) := by
-  sorry
+  ext x
+  rfl
 
 -- The kernel of a group homomorphism `φ` is a subgroup of the source group.
 -- The elements of the kernel are *defined* to be `{x | φ x = 1}`.
@@ -85,14 +88,12 @@ example (φ : G →* H) : Subgroup G :=
 -- or `monoid_hom.ker φ`
 example (φ : G →* H) (x : G) : x ∈ φ.ker ↔ φ x = 1 := by rfl
 
--- true by definition
 -- Similarly the image is defined in the obvious way, with `monoid_hom.range`
 example (φ : G →* H) : Subgroup H :=
   φ.range
 
 example (φ : G →* H) (y : H) : y ∈ φ.range ↔ ∃ x : G, φ x = y := by rfl
 
--- true by definition
 -- `subgroup.map` is used for the image of a subgroup under a group hom
 example (φ : G →* H) (S : Subgroup G) : Subgroup H :=
   S.map φ

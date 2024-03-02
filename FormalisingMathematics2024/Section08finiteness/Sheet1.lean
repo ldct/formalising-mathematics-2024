@@ -37,12 +37,12 @@ is one way of saying "let `S` be a finite subset of `X`":
 -/
 
 -- Let X be a type, let `S` be a subset of `X`, and assume `S` is finite. Then S=S.
-example (X : Type) (S : Set X) (hS : Set.Finite S) : S = S := by
+example (X : Type) (S : Set X) (_ : Set.Finite S) : S = S := by
   rfl
 
 -- Note that because `S` has type `Set (something)` we can use dot notation here:
 -- this means the same thing as the above example.
-example (X : Type) (S : Set X) (hS : S.Finite) : S = S := by
+example (X : Type) (S : Set X) (_ : S.Finite) : S = S := by
   rfl
 
 -- Lots of proofs about finite sets in this sense live in the `Set.Finite` namespace.
@@ -50,7 +50,8 @@ example (X : Type) (S : Set X) (hS : S.Finite) : S = S := by
 -- sets is finite?
 example (X : Type) (S : Set X) (T : Set X) (hs : Set.Finite S) (ht : T.Finite) : (S ∪ T).Finite :=
   by
-  sorry
+  -- exact Set.Finite.union hs ht
+  exact hs.union ht
 
 /-
 But Lean has another way to do finite subsets.
@@ -132,4 +133,11 @@ example (n : ℕ) : ∑ i in Finset.range n, (i : ℚ) ^ 2 = (n : ℚ) * (n - 1)
 
 -- See if you can can sum the first n cubes.
 example (n : ℕ) : ∑ i in Finset.range n, (i : ℚ) ^ 3 = (n : ℚ) ^ 2 * (n - 1) ^ 2 / 4 := by
-  sorry
+  induction' n with d hd
+  simp
+  rw [Finset.sum_range_succ]
+  rw [hd]
+  simp
+  ring
+
+-- todo(xuanji): tactic to sum polynomials?
