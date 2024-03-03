@@ -14,6 +14,9 @@ theorem sq_ineq (a b : ℝ) (hpos : 0 ≤ a) : a ≤ b → a^2 ≤ b^2 := by
 example (a : ℝ) (ha : 0 ≤ a) : Real.sqrt (a^2) = a := by
   exact Real.sqrt_sq ha
 
+theorem amgm2_rtfree (a b : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) : a * b ≤ (a*a + b*b) / 2 := by
+  sorry
+
 -- Theorem 1.1, two-variable case
 theorem amgm2 (a b : ℝ) (hpos1 : 0 ≤ a) (hpos2 : 0 ≤ b) : Real.sqrt (a * b) ≤ (a + b) / 2 := by
   have h1 : 0 ≤ (a + b)^2 - 4*a*b := by {
@@ -260,3 +263,11 @@ theorem amgm3 (x y z : ℝ) (hpos1 : 0 ≤ x) (hpos2 : 0 ≤ y) (hpos3 : 0 ≤ z
   exact hpos4
 
   repeat positivity
+
+-- example 1.2
+theorem example12 (a b c: ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c):  a * b + b * c + c * a ≤ a*a + b*b + c*c := by
+  have h1 := amgm2_rtfree a b ha hb
+  have h2 := amgm2_rtfree b c hb hc
+  have h3 := amgm2_rtfree c a hc ha
+
+  linarith
