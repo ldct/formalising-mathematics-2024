@@ -38,7 +38,7 @@ example : Prop :=
 example : f.Bijective ↔ f.Injective ∧ f.Surjective := by
   rfl
 
-example : f.Bijective ↔
+theorem bd : f.Bijective ↔
     (∀ x₁ x₂ : X, f x₁ = f x₂ → x₁ = x₂) ∧ ∀ y : Y, ∃ x : X, f x = y := by
   rfl
 
@@ -48,7 +48,23 @@ example : f.Bijective ↔
 -- please ask. There's lots of little Lean tricks which make this
 -- question not too bad, but there are lots of little pitfalls too.
 example : (∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id) → f.Bijective := by
-  sorry
+  intro h
+  cases' h with g hg
+  cases' hg with hg1 hg2
+  rw [bd]
+  constructor
+  intro a b hab
+  have hab' : g (f a) = g (f b) := by congr
+  rw [show g (f a) = (g ∘ f) a by rfl] at hab'
+  rw [show g (f b) = (g ∘ f) b by rfl] at hab'
+  rw [hg2] at hab'
+  dsimp at hab'
+  exact hab'
+  intro y
+  use g y
+  rw [show f (g y) = (f ∘ g) y by rfl]
+  rw [hg1]
+  dsimp
 
 -- The other way is harder in Lean, unless you know about the `choose`
 -- tactic. Given `f` and a proof that it's a bijection, how do you

@@ -36,10 +36,13 @@ example : Finite (X × Y) :=
 example : Finite (X → Y) :=
   inferInstance
 
+theorem tf : 3 < 37 := by norm_num
+
 -- The type `Fin n` is a structure. To make a term of this structure
 -- you need to give a pair, consisting of a natural `a`, and a proof that `a < n`.
 example : Fin 37 :=
-  ⟨3, by linarith⟩
+  ⟨3, by norm_num⟩
+  -- ⟨3, tf⟩
 
 -- The typeclass inference system also knows that these are finite
 example : Finite (Fin 37) :=
