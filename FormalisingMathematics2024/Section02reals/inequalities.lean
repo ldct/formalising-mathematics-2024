@@ -1,17 +1,17 @@
 import Lean
 import Mathlib.Tactic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Data.Nat.Fib.Basic
 
 import FormalisingMathematics2024.Section02reals.missing
 
 open Finset Classical BigOperators NNReal ENNReal
 
+open Nat Int
+
 example (a b: ℝ) (h : a ≤ b) : a/4 ≤ b/4 := by
   cancel_denoms
   exact h
-
-theorem sq_ineq (a b : ℝ) (hpos : 0 ≤ a) : a ≤ b → a^2 ≤ b^2 := by
-  exact fun a_1 ↦ pow_le_pow_left hpos a_1 2
 
 example (a : ℝ) (ha : 0 ≤ a) : Real.sqrt (a^2) = a := by
   exact Real.sqrt_sq ha
@@ -25,8 +25,7 @@ theorem amgm2_rtfree (a b : ℝ): a * b ≤ (a*a + b*b) / 2 := by
       _ = (a + b)^2 - 4*a*b := by ring
   }
   simp at h1
-  have rw1 : (a + b)^2 = a*a + 2*a*b + b*b := by ring
-  rw [rw1] at h1
+  rw [show (a + b)^2 = a*a + 2*a*b + b*b by ring] at h1
   linarith
 
 -- AM-GM for two variables with square roots
@@ -370,6 +369,18 @@ theorem ex14_p2 (a b c: ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c):  a^2 
 
   linarith
 
+-- lemma for inline problem
+lemma inl (a b c: ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c):  3 * a * b * c ≤ a ^ 2 * b + b ^ 2 * c + c ^ 2 * a := by
+  have hpa : 0 ≤ (a ^ 2 * b) := by positivity
+  have hpb : 0 ≤ (b ^ 2 * c) := by positivity
+  have hpc : 0 ≤ (c ^ 2 * a) := by positivity
+
+  have h1 := amgm3 (a ^ 2 * b) (b ^ 2 * c) (c ^ 2 * a) hpa hpb hpc
+  ring_nf at h1
+  simp (disch := positivity) only [Real.mul_rpow, pow3_cancels] at *
+
+  linarith
+
 -- inline problem
 example (a b c: ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c):  a^3 + b^3 + c^3 + 24*a*b*c ≤ (a + b + c)^3 := by
   rw [show (a + b + c)^3 = a^3 + b^3 + c^3 + 3*a^2*b + 3*b^2*a + 3*b^2*c + 3*c^2*b + 3*c^2*a + 3*a^2*c + 6*a*b*c by ring]
@@ -377,8 +388,22 @@ example (a b c: ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c):  a^3 + b^3 + 
   -- cancel like terms
   suffices (6 * a * b * c ≤ a ^ 2 * b + b ^ 2 * a + b ^ 2 * c + c ^ 2 * b + c ^ 2 * a + a ^ 2 * c) by linarith
 
-  sorry
+  have h1 := inl a b c ha hb hc
+  have h2 := inl a c b ha hc hb
+  linarith
 
 -- p a + q b ≥ a^(p) b^(q)
 --  proof: P(1) ≥ P(0) for w = [p, q] - weighted AMGM
 -- a + b + c ≥ a^p b^q + b^p c^q + c^p a^q
+
+theorem cassini_identity (m : ℕ) :
+    fib (m + 2) * fib m - fib (m + 1) ^ 2 = (-1 : ℤ) ^ (m + 1) := by
+  induction m with
+  | zero => rfl
+  | succ n ih =>
+    rw [Nat.succ_eq_add_one, pow_add, pow_one]
+    repeat rw [fib_add_two] at *
+
+    push_cast at *
+
+    linear_combination -(1 * ih) -- discovered by polyrith

@@ -5,7 +5,7 @@ Author : Kevin Buzzard
 -/
 import Mathlib.Tactic -- imports all the Lean tactics
 import FormalisingMathematics2024.Solutions.Section02reals.Sheet5 -- import a bunch of previous stuff
-
+import FormalisingMathematics2024.Section02reals.missing
 namespace Section2sheet6
 
 open Section2sheet3solutions Section2sheet5solutions
@@ -145,12 +145,9 @@ theorem tendsTo_neg_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c :
   }
   apply mulrw at hB
 
-  -- simplify the RHS of B
+  -- simplify the RHS of hB
   have h : -c * (ε / -c) = ε := by {
-    have c_ne_0 : c ≠ 0 := by exact LT.lt.ne hc
-    field_simp
-    ring_nf
-    field_simp
+    field_simp [show c ≠ 0 by exact LT.lt.ne hc]
     ring
   }
   rw [h] at hB
@@ -180,7 +177,7 @@ theorem tendsTo_const_mul {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t
   rw [tendsTo_def] at *
   intro ε hε
   use 0
-  intro n hn
+  intro n _
   rw [← c3]
   simp
   exact hε

@@ -20,8 +20,8 @@ example (a b : ℝ) : 0 < a → |a*b| = a*|b| := by {
 
 example (a b c: ℝ) : 0 < c → a < b → c*a < c*b := by sorry
 
--- Exercise 2.3.1: The sequence (37,37,...) converges to 37
-example : TendsTo (fun _ ↦ 37) 37 := by
+-- Exercise 2.3.1: The sequence (a,a,...) converges to 37
+example (a : ℝ): TendsTo (fun _ ↦ a) a := by
   rw [tendsTo_def] at *
   intro ε hε
   use 0
@@ -228,7 +228,7 @@ example (a b c: ℝ) (h1 : |a - b| < 1) (h2 : |b - c| < 1) : |a - c| < 2 := by {
   sorry
 }
 
--- Converges => Bounded
+-- Theorem 2.3.2 from Abbott. Converges => Bounded
 theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bounded f := by
   cases' hc with t h_conv
   rewrite [tendsTo_def] at *
@@ -285,7 +285,7 @@ theorem ConvergesThenBounded (f : ℕ → ℝ) (hc : ∃ t, TendsTo f t) : Bound
 
 example (x : ℝ) (y : ℝ) : |x + y| ≤ |x| + |y| := by exact abs_add x y
 
--- 2.2.3 (iii)
+-- Theorem 2.3.3 (algebraic limit theorem) (part iii)
 theorem tendsTo_mul_abott {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
     TendsTo (fun n ↦ a n * b n) (t * u) := by
   rw [tendsTo_def]
